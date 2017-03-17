@@ -94,8 +94,7 @@ namespace PasswordManager
          public static void EncryptFile(string file, string key)
         {
             //Input and output file are the same.
-            FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read);
-
+            FileStream fs = new FileStream(file, FileMode.Open, FileAccess.ReadWrite);
 
             //Create new DESCryptoServiceProvider
             DESCryptoServiceProvider DES = new DESCryptoServiceProvider();
@@ -106,12 +105,13 @@ namespace PasswordManager
 
             //Crypto transform
             ICryptoTransform desencrypt = DES.CreateEncryptor();
-            CryptoStream cryptostream = new CryptoStream(fs, desencrypt, CryptoStreamMode.Write);
+            CryptoStream crypto = new CryptoStream(fs, desencrypt, CryptoStreamMode.Write);
 
             //Create byte array and then transform.
             byte[] bytearrayinput = new byte[fs.Length - 1];
             fs.Read(bytearrayinput, 0, bytearrayinput.Length);
-            cryptostream.Write(bytearrayinput, 0, bytearrayinput.Length);
+            crypto.Write(bytearrayinput, 0, bytearrayinput.Length);
+            fs.Close();
         }
 
         public static void DecryptFile(string file, string key)

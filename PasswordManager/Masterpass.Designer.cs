@@ -50,6 +50,7 @@
             this.LoginButton.TabIndex = 0;
             this.LoginButton.Text = "Login";
             this.LoginButton.UseVisualStyleBackColor = false;
+            this.LoginButton.Click += new System.EventHandler(this.LoginButton_Click);
             // 
             // CreateButton
             // 
@@ -70,6 +71,7 @@
             this.PassBox.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.PassBox.Location = new System.Drawing.Point(215, 175);
             this.PassBox.Name = "PassBox";
+            this.PassBox.PasswordChar = '*';
             this.PassBox.Size = new System.Drawing.Size(144, 20);
             this.PassBox.TabIndex = 2;
             // 
