@@ -16,7 +16,7 @@ namespace PasswordManager
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Masterpass());
+            Application.Run(new Form1());
         }
     }
 }

@@ -28,6 +28,10 @@ namespace PasswordManager
                 CreateFile(finalpath, user, hashed);
                 string filepath = finalpath + "save.dat";
                 Encryption.EncryptFile(filepath, Encryption.GenerateFileKey());
+
+                //Set the messagebox back to empty after creating file.
+                UserBox.Text = "";
+                PassBox.Text = "";
             }
         }
 
@@ -35,20 +39,23 @@ namespace PasswordManager
         {
             if (UserBox.Text != "" && PassBox.Text != "")
             {
-                string[] stuff = ReadFile(finalpath);
-                string storedUser = stuff[1];
-                string storedHash = stuff[2];
+                string filepath = finalpath + "save.dat";
+                string[] stuff = ReadFile(filepath);
+                string storedUser = stuff[0];
+                string storedHash = stuff[1];
 
                 if(UserBox.Text == storedUser && Hashing.ValidatePassword(PassBox.Text, storedHash) == true)
                 {
-                    Form successful = new Form1();
+                    this.Hide();
+                    var form2 = new Form1();
+                    form2.Closed += (s, k) => this.Close();
+                    form2.Show();
                 }
 
                 else if(UserBox.Text != storedUser || Hashing.ValidatePassword(PassBox.Text, storedHash) == false)
                 {
                     MessageBox.Show("Invalid Login, try again with different credentials.");
                     //loginAttempts--;
-                    Console.WriteLine("Stored Username is: {0}", storedUser);
                 }
             }
         }

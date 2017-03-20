@@ -71,7 +71,6 @@
             this.PassBox.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.PassBox.Location = new System.Drawing.Point(215, 175);
             this.PassBox.Name = "PassBox";
-            this.PassBox.PasswordChar = '*';
             this.PassBox.Size = new System.Drawing.Size(144, 20);
             this.PassBox.TabIndex = 2;
             // 
@@ -87,7 +86,7 @@
             // 
             this.pictureBox2.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.pictureBox2.Image = global::PasswordManager.Properties.Resources.User_Male_26;
-            this.pictureBox2.Location = new System.Drawing.Point(179, 170);
+            this.pictureBox2.Location = new System.Drawing.Point(179, 103);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(30, 34);
             this.pictureBox2.TabIndex = 3;
@@ -97,7 +96,7 @@
             // 
             this.pictureBox1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.pictureBox1.Image = global::PasswordManager.Properties.Resources.Lock_26;
-            this.pictureBox1.Location = new System.Drawing.Point(179, 106);
+            this.pictureBox1.Location = new System.Drawing.Point(179, 168);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(30, 34);
             this.pictureBox1.TabIndex = 1;
