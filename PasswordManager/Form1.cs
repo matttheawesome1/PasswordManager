@@ -16,85 +16,92 @@ namespace PasswordManager
 
     public partial class Form1 : Form
     {
-        //Data stuff
-        private OleDbDataAdapter memDataAdap;
-        private DataSet memDS;
-        private OleDbCommandBuilder comBuild;
-        private OleDbCommand dbCom;
-        private OleDbConnection dbConn;
-
-        //Private members.
-        private string sConnection;
-        private string sql;
-        private DataTable myDataTable;
+        private string query;
+        private string strProvider = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\\Users\\Matthew.Zelenka\\Source\\Repos\\PassMan\\PasswordManager\\manager.accdb";
+        OleDbConnection sqlConn;
+        OleDbCommand cmd;
+        OleDbCommandBuilder cmdBuilder;
+        OleDbDataAdapter sda;
+        DataTable dt;
 
         public Form1()
         {
             InitializeComponent();
-            sConnection = "Provider=Microsoft.ACE.OLEDB.12.0;" + "Data Source=manager.accdb";
-            dbConn = new OleDbConnection(sConnection);
+
         }
-
-        private void FileUpdate()
-        {
-            try
-            {
-                comBuild = new OleDbCommandBuilder(memDataAdap);
-                memDataAdap.Update(datatable);
-            }
-
-            catch (Exception exc)
-            {
-                MessageBox.Show(exc.ToString());
-            }
-        }
-
-        private DataTable datatable;
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            // TODO: This line of code loads data into the 'managerDataSet.accountManager' table. You can move, or remove it, as needed.
-            this.accountManagerTableAdapter.Fill(this.managerDataSet.accountManager);
+            query = "SELECT * FROM accountManager";
+            sqlConn = new OleDbConnection(strProvider);
+            cmd = new OleDbCommand(query, sqlConn);
+            cmdBuilder = new OleDbCommandBuilder(sda);
+            sqlConn.Open();
+            cmd.CommandType = CommandType.Text;
+            sda = new OleDbDataAdapter(cmd);
+            dt = new DataTable();
+            sda.Fill(dt);
+            dataGridView1.DataSource = dt;
+            sqlConn.Close();
+        }
 
-            try
-            {
-                /*
-                 * Construct an object of the type of the OleDbConnection class
-                 * to store the connection string representing the type of
-                 * data provider (database) and the source (actual db)
-                 */
-                dbConn.Open();
-
-                //Construct an object of the OleDbCommand class to hold the sql query.
-                sql = "SELECT * FROM accountManager";
-                dbCom = new OleDbCommand();
-
-                //Tie the OleDbCommand object to the OleDbConnection object.
-                dbCom.CommandText = sql;
-                dbCom.Connection = dbConn;
-                memDataAdap = new OleDbDataAdapter();
-                memDataAdap.SelectCommand = dbCom;
-                memDS = new DataSet();
-                datatable = new DataTable();
-                memDataAdap.Fill(datatable);
-                dataGridView1.DataSource = datatable;
-
-                FileUpdate();
-                dbConn.Close();
-            }
-
-            catch (Exception exc)
-            {
-                MessageBox.Show(exc.ToString());
-            }
-
+        private void update()
+        {
+            query = "SELECT * FROM accountManager";
+            cmd = new OleDbCommand(query, sqlConn);
+            cmdBuilder = new OleDbCommandBuilder(sda);
+            sqlConn.Open();
+            cmd.CommandType = CommandType.Text;
+            sda = new OleDbDataAdapter(cmd);
+            dt = new DataTable();
+            sda.Fill(dt);
+            dataGridView1.DataSource = dt;
+            sqlConn.Close();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (AccntBox.Text != "" && PassBox.Text != "")
+
+            if(AccntBox.Text != "" && PassBox.Text != "")
             {
-                
+                sqlConn.Open();
+                if(sqlConn.State == ConnectionState.Open)
+                {
+                    try
+                    {
+                        query = "INSERT INTO accountManager (acct, pass) VALUES(@acct, @pass)";
+
+                        cmd.CommandText = query;
+
+                        cmd.Parameters.Add("@acct", OleDbType.VarChar).Value = AccntBox.Text;
+                        cmd.Parameters.Add("@pass", OleDbType.VarChar).Value = PassBox.Text;
+
+                        sda.InsertCommand = cmd;
+
+                        dt = new DataTable();
+
+                        sda.Fill(dt);
+
+                        sda.Update(dt);
+                        sqlConn.Close();
+                        update();
+
+                        MessageBox.Show("Data added successfully");
+                        
+                    }
+
+                    catch (OleDbException ex)
+                    {
+                        MessageBox.Show("Error at: " + ex.ToString());
+                        sqlConn.Close();
+                    }
+
+                }
+
+                else
+                {
+                    MessageBox.Show("Connection failed.");
+                }
             }
         }
     }
