@@ -1,0 +1,3 @@
+﻿The lock image was found at: https://icons8.com/web-app/93/lock
+The user-male image was found at: https://icons8.com/web-app/11797/user-male
+The search image was found at: https://icons8.com/web-app/131/search
