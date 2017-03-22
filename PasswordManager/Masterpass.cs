@@ -37,26 +37,34 @@ namespace PasswordManager
 
         private void LoginButton_Click(object sender, EventArgs e)
         {
-            if (UserBox.Text != "" && PassBox.Text != "")
+            if(File.Exists(finalpath + "save.dat"))
             {
-                string filepath = finalpath + "save.dat";
-                string[] stuff = ReadFile(filepath);
-                string storedUser = stuff[0];
-                string storedHash = stuff[1];
-
-                if(UserBox.Text == storedUser && Hashing.ValidatePassword(PassBox.Text, storedHash) == true)
+                if (UserBox.Text != "" && PassBox.Text != "")
                 {
-                    this.Hide();
-                    var form2 = new Form1();
-                    form2.Closed += (s, k) => this.Close();
-                    form2.Show();
-                }
+                    string filepath = finalpath + "save.dat";
+                    string[] stuff = ReadFile(filepath);
+                    string storedUser = stuff[0];
+                    string storedHash = stuff[1];
 
-                else if(UserBox.Text != storedUser || Hashing.ValidatePassword(PassBox.Text, storedHash) == false)
-                {
-                    MessageBox.Show("Invalid Login, try again with different credentials.");
-                    //loginAttempts--;
+                    if (UserBox.Text == storedUser && Hashing.ValidatePassword(PassBox.Text, storedHash) == true)
+                    {
+                        this.Hide();
+                        var form2 = new Form1();
+                        form2.Closed += (s, k) => this.Close();
+                        form2.Show();
+                    }
+
+                    else if (UserBox.Text != storedUser || Hashing.ValidatePassword(PassBox.Text, storedHash) == false)
+                    {
+                        MessageBox.Show("Invalid Login, try again with different credentials.");
+                        //loginAttempts--;
+                    }
                 }
+            }
+
+            else
+            {
+                MessageBox.Show("You need to create an account first!");
             }
         }
 

@@ -29,7 +29,6 @@ namespace PasswordManager
         public Form1()
         {
             InitializeComponent();
-
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -46,7 +45,7 @@ namespace PasswordManager
             keyColums.Add("acct");
             keyColums.Add("pass");
             sda.Fill(dt);
-            //RemoveDuplicatesFromDataTable(dt, keyColums);
+            RemoveDuplicatesFromDataTable(dt, keyColums);
             dataGridView1.DataSource = dt;
             sqlConn.Close();
         }
@@ -64,12 +63,12 @@ namespace PasswordManager
             keyColums.Add("acct");
             keyColums.Add("pass");
             sda.Fill(dt);
-            //RemoveDuplicatesFromDataTable(dt, keyColums);
+            RemoveDuplicatesFromDataTable(dt, keyColums);
             dataGridView1.DataSource = dt;
             sqlConn.Close();
         }
 
-        /*
+/*
  * Author: Terry Guo
  * Found on: https://forums.asp.net/t/1957806.aspx?How%20to%20remove%20duplicate%20rows%20with%20same%20multiple%20ID%20s%20from%20a%20datatable
  * Function removes all duplicate entries from a data table.
@@ -151,7 +150,7 @@ namespace PasswordManager
                         List<string> keyColums = new List<string>();
                         keyColums.Add("acct");
                         keyColums.Add("pass");
-                        //RemoveDuplicatesFromDataTable(dt, keyColums); //Remove duplicate accounts.
+                        RemoveDuplicatesFromDataTable(dt, keyColums); //Remove duplicate accounts.
 
                         sda.Fill(dt); //Fill the datatable with new entry.
 
@@ -197,16 +196,32 @@ namespace PasswordManager
 
         private void Delete_Click(object sender, EventArgs e)
         {
-            if(Search.Text != "")
-            {
-                query = String.Format("SELECT * FROM accountManager WHERE ( acct LIKE @{0} )", Search.Text);
-                cmd.Parameters.Add("@accounts", OleDbType.VarChar).Value = Search.Text;
-            }
+            
         }
 
         private void Search_Click(object sender, EventArgs e)
         {
+            if (Search.Text != "")
+            {
+                query = String.Format("SELECT * FROM accountManager WHERE acct='@accounts'", Search.Text);
+                cmd.Parameters.Add("@accounts", OleDbType.VarChar).Value = Search.Text;
 
+                cmd.CommandText = query;
+
+                sda.SelectCommand = cmd;
+
+                dt = new DataTable(); //Create a new datatable to fill.
+                List<string> keyColums = new List<string>();
+                keyColums.Add("acct");
+                keyColums.Add("pass");
+                RemoveDuplicatesFromDataTable(dt, keyColums); //Remove duplicate accounts.
+
+                sda.Fill(dt); //Fill the datatable with new entry.
+
+                sda.Update(dt); //Update the datatable
+                sqlConn.Close(); //Close the connection
+                dataGridView1.DataSource = dt;
+            }
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
