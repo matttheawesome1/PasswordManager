@@ -178,14 +178,14 @@
             // encryptToolStripMenuItem
             // 
             this.encryptToolStripMenuItem.Name = "encryptToolStripMenuItem";
-            this.encryptToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.encryptToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
             this.encryptToolStripMenuItem.Text = "Cipher";
             this.encryptToolStripMenuItem.Click += new System.EventHandler(this.encryptToolStripMenuItem_Click);
             // 
             // decryptToolStripMenuItem
             // 
             this.decryptToolStripMenuItem.Name = "decryptToolStripMenuItem";
-            this.decryptToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.decryptToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
             this.decryptToolStripMenuItem.Text = "Decipher";
             this.decryptToolStripMenuItem.Click += new System.EventHandler(this.decryptToolStripMenuItem_Click);
             // 
@@ -195,9 +195,7 @@
             this.SearchBox.Name = "SearchBox";
             this.SearchBox.Size = new System.Drawing.Size(200, 20);
             this.SearchBox.TabIndex = 7;
-            this.SearchBox.Text = "Search username";
-            this.SearchBox.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
-            this.SearchBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(KeyWasPressed);
+            this.SearchBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.KeyWasPressed);
             // 
             // Search
             // 

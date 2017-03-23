@@ -41,11 +41,9 @@ namespace PasswordManager
             cmd.CommandType = CommandType.Text;
             sda = new OleDbDataAdapter(cmd);
             dt = new DataTable();
-            List<string> keyColums = new List<string>();
-            keyColums.Add("acct");
-            keyColums.Add("pass");
-            sda.Fill(dt);
-            RemoveDuplicatesFromDataTable(dt, keyColums);
+
+            RemoveDuplicateRows(dt, "@acct");
+
             dataGridView1.DataSource = dt;
             sqlConn.Close();
         }
@@ -59,65 +57,38 @@ namespace PasswordManager
             cmd.CommandType = CommandType.Text;
             sda = new OleDbDataAdapter(cmd);
             dt = new DataTable();
-            List<string> keyColums = new List<string>();
-            keyColums.Add("acct");
-            keyColums.Add("pass");
             sda.Fill(dt);
-            RemoveDuplicatesFromDataTable(dt, keyColums);
+            RemoveDuplicateRows(dt, "acct");
             dataGridView1.DataSource = dt;
             sqlConn.Close();
         }
 
-/*
- * Author: Terry Guo
- * Found on: https://forums.asp.net/t/1957806.aspx?How%20to%20remove%20duplicate%20rows%20with%20same%20multiple%20ID%20s%20from%20a%20datatable
- * Function removes all duplicate entries from a data table.
- */
-        public static void RemoveDuplicatesFromDataTable(DataTable table, List<string> keyColumns)
+        /*
+         *Author: Username ratty on StackOverflow
+         *Found on website: http://stackoverflow.com/questions/4415519/best-way-to-remove-duplicate-entries-from-a-data-table
+         *Removes duplicate entries from datatable. 
+         */
+        public DataTable RemoveDuplicateRows(DataTable dTable, string colName)
         {
+            Hashtable hTable = new Hashtable();
+            ArrayList duplicateList = new ArrayList();
 
-            Dictionary<string, string> uniquenessDict = new Dictionary<string, string>(table.Rows.Count);
-
-            StringBuilder stringBuilder = null;
-
-            int rowIndex = 0;
-
-            DataRow row;
-
-            DataRowCollection rows = table.Rows;
-
-            while (rowIndex < rows.Count)
+            //Add list of all the unique item value to hashtable, which stores combination of key, value pair.
+            //And add duplicate item value in arraylist.
+            foreach (DataRow drow in dTable.Rows)
             {
-
-                row = rows[rowIndex];
-
-                stringBuilder = new StringBuilder();
-
-                foreach (string colname in keyColumns)
-                {
-
-                    stringBuilder.Append(((string)row[colname]));
-
-                }
-
-                if (uniquenessDict.ContainsKey(stringBuilder.ToString()))
-                {
-
-                    rows.Remove(row);
-
-                }
-
+                if (hTable.Contains(drow[colName]))
+                    duplicateList.Add(drow);
                 else
-                {
-
-                    uniquenessDict.Add(stringBuilder.ToString(), string.Empty);
-
-                    rowIndex++;
-
-                }
-
+                    hTable.Add(drow[colName], string.Empty);
             }
 
+            //Removing a list of duplicate items from datatable.
+            foreach (DataRow dRow in duplicateList)
+                dTable.Rows.Remove(dRow);
+
+            //Datatable which contains unique records will be return as output.
+            return dTable;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -147,10 +118,7 @@ namespace PasswordManager
                         sda.InsertCommand = cmd;
 
                         dt = new DataTable(); //Create a new datatable to fill.
-                        List<string> keyColums = new List<string>();
-                        keyColums.Add("acct");
-                        keyColums.Add("pass");
-                        RemoveDuplicatesFromDataTable(dt, keyColums); //Remove duplicate accounts.
+                        RemoveDuplicateRows(dt, "acct"); //Remove duplicate accounts.
 
                         sda.Fill(dt); //Fill the datatable with new entry.
 
@@ -177,14 +145,6 @@ namespace PasswordManager
             }
         }
 
-        private void SearchBox_TextChanged(object sender, EventArgs e)
-        {
-            if(SearchBox.Text == "Search username")
-            {
-                SearchBox.Text = "";
-            }
-        }
-
         private void KeyWasPressed(object sender, System.Windows.Forms.KeyPressEventArgs e)
         {
             if(e.KeyChar == (char)13)
@@ -196,37 +156,115 @@ namespace PasswordManager
 
         private void Delete_Click(object sender, EventArgs e)
         {
-            
+            if(Search.Text != "")
+            {
+                SearchString(SearchBox.Text);
+                DeleteFromTable(dt, SearchBox.Text);
+            }
+
+            else
+            {
+                Update();
+            }
         }
 
         private void Search_Click(object sender, EventArgs e)
         {
             if (Search.Text != "")
             {
-                query = String.Format("SELECT * FROM accountManager WHERE acct='@accounts'", Search.Text);
-                cmd.Parameters.Add("@accounts", OleDbType.VarChar).Value = Search.Text;
+                SearchString(SearchBox.Text);
+            }
 
-                cmd.CommandText = query;
+            else
+            {
+                Update();
+            }
 
-                sda.SelectCommand = cmd;
+            MessageBox.Show(SearchBox.Text);
+        }
 
-                dt = new DataTable(); //Create a new datatable to fill.
-                List<string> keyColums = new List<string>();
-                keyColums.Add("acct");
-                keyColums.Add("pass");
-                RemoveDuplicatesFromDataTable(dt, keyColums); //Remove duplicate accounts.
+        private void SearchString(string searched)
+        {
+            sqlConn.Open();
+            if (sqlConn.State == ConnectionState.Open)
+            {
+                try
+                {
+                    query = "SELECT * FROM accountManager WHERE acct LIKE @accounts";
+                    cmd = new OleDbCommand(query, sqlConn);
+                    cmdBuilder = new OleDbCommandBuilder(sda);
+                    sda = new OleDbDataAdapter(cmd);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@accounts", OleDbType.VarChar).Value = searched;
 
-                sda.Fill(dt); //Fill the datatable with new entry.
+                    cmd.ExecuteNonQuery();
 
-                sda.Update(dt); //Update the datatable
-                sqlConn.Close(); //Close the connection
-                dataGridView1.DataSource = dt;
+                    sda.SelectCommand = cmd;
+
+                    dt = new DataTable(); //Create a new datatable to fill.
+                    RemoveDuplicateRows(dt, "acct"); //Remove duplicate entries.
+
+                    sda.Fill(dt); //Fill the datatable.
+                    MessageBox.Show("Search complete.");
+
+                    dataGridView1.DataSource = dt; //Set the datasource to the datatable.
+
+                    sqlConn.Close(); //Close the connection
+                }
+
+                catch (OleDbException ex)
+                {
+                    MessageBox.Show("Error occured at: " + ex.ToString());
+                }
+            }
+
+            else
+            {
+                MessageBox.Show("Connection failed.");
             }
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void DeleteFromTable(DataTable dt, string column)
         {
+            sqlConn.Open();
+            try
+            {
+                if(sqlConn.State == ConnectionState.Open)
+                {
+                    query = "DELETE FROM accountManager WHERE EXISTS(SELECT * FROM accountManager WHERE acct = @account)"; //Delete the entire record.
+                    cmd = new OleDbCommand(query, sqlConn);
+                    cmdBuilder = new OleDbCommandBuilder(sda);
+                    sda = new OleDbDataAdapter(cmd);
+                    cmd.CommandType = CommandType.Text;
+                    cmd.Parameters.Add("@account", OleDbType.VarChar).Value = column;
 
+                    cmd.CommandText = query;
+
+                    cmd.ExecuteNonQuery();
+
+                    sda.DeleteCommand = cmd;
+
+                    dt = new DataTable();
+
+                    sda.Fill(dt);
+                    MessageBox.Show("Deleted account");
+
+                    dataGridView1.DataSource = dt;
+
+                    sqlConn.Close();
+                    Update();
+                }
+
+                else
+                {
+                    MessageBox.Show("Connection failed.");
+                }
+            }
+
+            catch(OleDbException ex)
+            {
+                MessageBox.Show("There was an error at: " + ex.ToString());
+            }
         }
 
         private void encryptToolStripMenuItem_Click(object sender, EventArgs e)
@@ -270,7 +308,7 @@ namespace PasswordManager
                 key = key % 26 + 26; //Set the key between 1 and 26.
             }
 
-            char c; //Place holder character.
+            char tostring = ' '; //Place holder character.
             string word = " "; //Initialize word to empty.
 
             foreach(char symbol in ciphertext)
@@ -282,15 +320,15 @@ namespace PasswordManager
                      * Mathematically the Caeser Cipher is: F(x) = (x + n) mod 26
                      * Where x is the letter being encrypted and n is the shift of the cipher.
                      */
-                    c = Convert.ToChar((Convert.ToInt32(symbol) - Convert.ToInt32('A') + key) % 26 + Convert.ToInt32('A'));
+                    tostring = Convert.ToChar((Convert.ToInt32(symbol) - Convert.ToInt32('A') + key) % 26 + Convert.ToInt32('A'));
                 }
 
                 else if(symbol >= 'a' && symbol <= 'z')
                 {
-                    c = Convert.ToChar((Convert.ToInt32(symbol) - Convert.ToInt32('a') + key) % 26 + Convert.ToInt32('a'));
+                    tostring = Convert.ToChar((Convert.ToInt32(symbol) - Convert.ToInt32('a') + key) % 26 + Convert.ToInt32('a'));
                 }
 
-                word += symbol;
+                word += tostring;
             }
             return word;
         }
