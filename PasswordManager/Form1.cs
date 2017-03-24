@@ -33,34 +33,73 @@ namespace PasswordManager
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            query = "SELECT * FROM accountManager";
-            sqlConn = new OleDbConnection(strProvider);
-            cmd = new OleDbCommand(query, sqlConn);
-            cmdBuilder = new OleDbCommandBuilder(sda);
-            sqlConn.Open();
-            cmd.CommandType = CommandType.Text;
-            sda = new OleDbDataAdapter(cmd);
-            dt = new DataTable();
+            try
+            {
+                sqlConn = new OleDbConnection(strProvider);
+                sqlConn.Open();
 
-            RemoveDuplicateRows(dt, "@acct");
+                if(sqlConn.State == ConnectionState.Open)
+                {
+                    query = "SELECT * FROM accountManager";
+                    cmd = new OleDbCommand(query, sqlConn);
+                    cmdBuilder = new OleDbCommandBuilder(sda);
+                    cmd.CommandType = CommandType.Text;
+                    sda = new OleDbDataAdapter(cmd);
+                    dt = new DataTable();
 
-            dataGridView1.DataSource = dt;
-            sqlConn.Close();
+                    sda.Fill(dt);
+                    RemoveDuplicateRows(dt, "acct");
+                    sda.Update(dt);
+                    dataGridView1.DataSource = dt;
+                    sqlConn.Close();
+                }
+
+                else
+                {
+                    MessageBox.Show("Connection failed.");
+                }
+            }
+
+            catch (OleDbException ex)
+            {
+                MessageBox.Show("Error occured at: " + ex.ToString());
+            }
+
         }
 
         private void update()
         {
-            query = "SELECT * FROM accountManager";
-            cmd = new OleDbCommand(query, sqlConn);
-            cmdBuilder = new OleDbCommandBuilder(sda);
-            sqlConn.Open();
-            cmd.CommandType = CommandType.Text;
-            sda = new OleDbDataAdapter(cmd);
-            dt = new DataTable();
-            sda.Fill(dt);
-            RemoveDuplicateRows(dt, "acct");
-            dataGridView1.DataSource = dt;
-            sqlConn.Close();
+            try
+            {
+                sqlConn = new OleDbConnection(strProvider);
+                sqlConn.Open();
+
+                if (sqlConn.State == ConnectionState.Open)
+                {
+                    query = "SELECT * FROM accountManager";
+                    cmd = new OleDbCommand(query, sqlConn);
+                    cmdBuilder = new OleDbCommandBuilder(sda);
+                    cmd.CommandType = CommandType.Text;
+                    sda = new OleDbDataAdapter(cmd);
+                    dt = new DataTable();
+
+                    sda.Fill(dt);
+                    RemoveDuplicateRows(dt, "acct");
+                    sda.Update(dt);
+                    dataGridView1.DataSource = dt;
+                    sqlConn.Close();
+                }
+
+                else
+                {
+                    MessageBox.Show("Connection failed.");
+                }
+            }
+
+            catch (OleDbException ex)
+            {
+                MessageBox.Show("Error occured at: " + ex.ToString());
+            }
         }
 
         /*
@@ -156,31 +195,32 @@ namespace PasswordManager
 
         private void Delete_Click(object sender, EventArgs e)
         {
-            if(Search.Text != "")
+            if(SearchBox.Text != "")
             {
-                SearchString(SearchBox.Text);
-                DeleteFromTable(dt, SearchBox.Text);
+                DeleteFromTable(SearchBox.Text);
+                update();
             }
 
             else
             {
-                Update();
+                MessageBox.Show("Search box is empty, please add data in it, and try again.");
+                update();
             }
         }
 
         private void Search_Click(object sender, EventArgs e)
         {
-            if (Search.Text != "")
+            if (SearchBox.Text != "")
             {
                 SearchString(SearchBox.Text);
             }
 
-            else
+            else if(SearchBox.Text == "")
             {
                 Update();
             }
 
-            MessageBox.Show(SearchBox.Text);
+            //MessageBox.Show(SearchBox.Text);
         }
 
         private void SearchString(string searched)
@@ -205,10 +245,9 @@ namespace PasswordManager
                     RemoveDuplicateRows(dt, "acct"); //Remove duplicate entries.
 
                     sda.Fill(dt); //Fill the datatable.
-                    MessageBox.Show("Search complete.");
-
+                    sda.Update(dt);
                     dataGridView1.DataSource = dt; //Set the datasource to the datatable.
-
+                    
                     sqlConn.Close(); //Close the connection
                 }
 
@@ -224,35 +263,52 @@ namespace PasswordManager
             }
         }
 
-        private void DeleteFromTable(DataTable dt, string column)
+        private void DeleteFromTable(string account)
         {
             sqlConn.Open();
             try
             {
                 if(sqlConn.State == ConnectionState.Open)
                 {
-                    query = "DELETE FROM accountManager WHERE EXISTS(SELECT * FROM accountManager WHERE acct = @account)"; //Delete the entire record.
+                    query = "DELETE FROM accountManager WHERE acct = @account"; //Delete the entire record.
                     cmd = new OleDbCommand(query, sqlConn);
                     cmdBuilder = new OleDbCommandBuilder(sda);
                     sda = new OleDbDataAdapter(cmd);
                     cmd.CommandType = CommandType.Text;
-                    cmd.Parameters.Add("@account", OleDbType.VarChar).Value = column;
+                    cmd.Parameters.Add("@account", OleDbType.VarChar).Value = account;
 
                     cmd.CommandText = query;
+
+                    int a = cmd.ExecuteNonQuery();
+                    if (a >= 1)
+                    {
+                        MessageBox.Show("Account was removed successfully.");
+                    }
+
+                    else if (a == 0)
+                    {
+                        MessageBox.Show("Account does not exist.");
+                    }
+
+                    else
+                    {
+                        MessageBox.Show("SET NOCOUNT is ON. Figure out how to turn it off.");
+                    }
 
                     cmd.ExecuteNonQuery();
 
                     sda.DeleteCommand = cmd;
 
                     dt = new DataTable();
+                    RemoveDuplicateRows(dt, "acct");
 
                     sda.Fill(dt);
-                    MessageBox.Show("Deleted account");
 
+                    sda.Update(dt);
                     dataGridView1.DataSource = dt;
-
+                    
                     sqlConn.Close();
-                    Update();
+                    update();
                 }
 
                 else
@@ -331,6 +387,11 @@ namespace PasswordManager
                 word += tostring;
             }
             return word;
+        }
+
+        private void UpdateButton_Click(object sender, EventArgs e)
+        {
+            update();
         }
     }
 }

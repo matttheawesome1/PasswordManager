@@ -71,6 +71,7 @@
             this.PassBox.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.PassBox.Location = new System.Drawing.Point(215, 175);
             this.PassBox.Name = "PassBox";
+            this.PassBox.PasswordChar = '*';
             this.PassBox.Size = new System.Drawing.Size(144, 20);
             this.PassBox.TabIndex = 2;
             // 

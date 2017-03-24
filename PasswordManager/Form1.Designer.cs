@@ -52,6 +52,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.CaeserKeyBox = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.UpdateButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.accountManagerBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.managerDataSet)).BeginInit();
@@ -251,11 +252,22 @@
             this.label4.TabIndex = 13;
             this.label4.Text = "Caeser Key";
             // 
+            // UpdateButton
+            // 
+            this.UpdateButton.Location = new System.Drawing.Point(469, 104);
+            this.UpdateButton.Name = "UpdateButton";
+            this.UpdateButton.Size = new System.Drawing.Size(108, 23);
+            this.UpdateButton.TabIndex = 14;
+            this.UpdateButton.Text = "Update Table";
+            this.UpdateButton.UseVisualStyleBackColor = true;
+            this.UpdateButton.Click += new System.EventHandler(this.UpdateButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(969, 380);
+            this.Controls.Add(this.UpdateButton);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.CaeserKeyBox);
             this.Controls.Add(this.label3);
@@ -310,6 +322,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox CaeserKeyBox;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button UpdateButton;
     }
 }
 
