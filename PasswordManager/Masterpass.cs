@@ -60,6 +60,11 @@ namespace PasswordManager
                         //loginAttempts--;
                     }
                 }
+
+                else
+                {
+                    MessageBox.Show("Username or Password form is empty, please enter your user and pass and try again.");
+                }
             }
 
             else

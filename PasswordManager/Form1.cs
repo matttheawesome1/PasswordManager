@@ -369,7 +369,7 @@ namespace PasswordManager
 
             foreach(char symbol in ciphertext)
             {
-                if(symbol >= 'A' && symbol <= 'Z')
+                if (symbol >= 'A' && symbol <= 'Z')
                 {
                     /*
                      * This converts one character at a time with the caeser cipher method.
@@ -379,9 +379,14 @@ namespace PasswordManager
                     tostring = Convert.ToChar((Convert.ToInt32(symbol) - Convert.ToInt32('A') + key) % 26 + Convert.ToInt32('A'));
                 }
 
-                else if(symbol >= 'a' && symbol <= 'z')
+                else if (symbol >= 'a' && symbol <= 'z')
                 {
                     tostring = Convert.ToChar((Convert.ToInt32(symbol) - Convert.ToInt32('a') + key) % 26 + Convert.ToInt32('a'));
+                }
+
+                else if (symbol == ' ')
+                {
+                    word += " ";
                 }
 
                 word += tostring;
